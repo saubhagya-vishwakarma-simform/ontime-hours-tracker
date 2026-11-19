@@ -7,11 +7,12 @@
   @media (prefers-color-scheme: dark) { :root { --text:#e8ecf7; --muted:#97a3bd; --line:#2b3550; --bg:#0f1424; --card:#1a2138; --accent:#818cf8; } }
   * { box-sizing:border-box; }
   body { width:340px; margin:0; background:var(--bg); color:var(--text); font:13px Inter,-apple-system,"Segoe UI",Roboto,Arial,sans-serif; }
-  header { padding:16px; color:#fff; background:linear-gradient(120deg,#4f46e5,#06b6d4); }
+  header { padding:10px 16px; color:#fff; background:linear-gradient(120deg,#4f46e5,#06b6d4); }
   h1 { font-size:16px; margin:0; } header p { margin:3px 0 0; font-size:12px; opacity:.85; }
-  main { padding:12px; display:grid; gap:10px; }
-  section { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px; }
-  h2 { font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); margin:0 0 8px; }
+  html { overflow:hidden; }
+  main { padding:8px 12px; display:grid; gap:6px; }
+  section { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:8px 12px; }
+  h2 { font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); margin:0 0 6px; }
   input[type=number], textarea { width:100%; background:transparent; color:var(--text); border:1px solid var(--line); border-radius:8px; padding:8px 10px; font:inherit; }
   input[type=number]:focus, textarea:focus { outline:2px solid var(--accent); border-color:transparent; }
   textarea { height:76px; font-family:monospace; font-size:12px; resize:vertical; }
@@ -21,10 +22,28 @@
   .days span { display:block; padding:6px 10px; border:1px solid var(--line); border-radius:99px; font-weight:600; color:var(--muted); }
   .days input:checked + span { background:var(--accent); border-color:var(--accent); color:#fff; }
   .days input:focus-visible + span { outline:2px solid var(--accent); outline-offset:2px; }
-  .sw { display:flex; justify-content:space-between; align-items:center; gap:12px; padding:6px 0; cursor:pointer; }
+  .sw { display:flex; justify-content:space-between; align-items:center; gap:12px; padding:3px 0; cursor:pointer; }
   .sw input { appearance:none; flex:none; width:36px; height:20px; border-radius:99px; background:var(--line); position:relative; transition:.2s; cursor:pointer; }
   .sw input::after { content:""; position:absolute; top:2px; left:2px; width:16px; height:16px; border-radius:50%; background:#fff; transition:.2s; }
   .sw input:checked { background:var(--accent); } .sw input:checked::after { left:18px; }
+  .modes { display:flex; gap:6px; margin-bottom:6px; }
+  .modes label { flex:1; cursor:pointer; } .modes input { position:absolute; opacity:0; }
+  .modes span { display:block; text-align:center; padding:4px; border:1px solid var(--line); border-radius:8px; font-weight:600; color:var(--muted); }
+  .modes input[value=full]:checked + span { background:#ef4444; border-color:#ef4444; color:#fff; }
+  .modes input[value=half]:checked + span { background:#f59e0b; border-color:#f59e0b; color:#111; }
+  .modes input[value=clear]:checked + span { background:var(--accent); border-color:var(--accent); color:#fff; }
+  .cal-h { display:flex; justify-content:space-between; align-items:center; font-weight:700; margin-bottom:4px; }
+  .cal-h b { background:none; color:var(--text); border:0; width:28px; padding:2px; font-size:16px; cursor:pointer; }
+  .grid { display:grid; grid-template-columns:repeat(7,1fr); gap:2px; text-align:center; }
+  .grid i { font-style:normal; font-size:10px; color:var(--muted); }
+  .grid u { text-decoration:none; padding:5px 0; border-radius:6px; cursor:pointer; font-size:12px; }
+  .grid u:hover { background:var(--line); }
+  .grid u.full { background:#ef4444; color:#fff; }
+  .grid u.half { background:#f59e0b; color:#111; }
+  .grid u small { display:block; font-size:8px; line-height:1; opacity:.7; }
+  [hidden] { display:none !important; }
+  #calbox .cal-h { justify-content:center; }
+  .grid u.today { outline:1px solid var(--muted); }
   .hint { color:var(--muted); font-size:11px; margin-top:6px; }
   button { width:100%; padding:10px; background:linear-gradient(120deg,#4f46e5,#06b6d4); color:#fff; border:0; border-radius:10px; font:700 13px inherit; cursor:pointer; }
   button:hover { filter:brightness(1.08); }
@@ -34,12 +53,16 @@
 <body>
   <header><h1>⏱ OnTime Hours Tracker</h1><p>Settings for your timesheet summary</p></header>
   <main>
-    <section><h2>Hours per working day</h2>
-      <input type="number" id="hoursPerDay" min="1" max="24" step="0.25"></section>
-    <section><h2>Working weekdays</h2><div class="days" id="days"></div></section>
-    <section><h2>Holidays</h2>
-      <textarea id="holidays" placeholder="09/11/2026&#10;25/12/2026"></textarea>
-      <div class="hint">One per line, DD/MM/YYYY. Removed from the working-day count.</div></section>
+        <section><h2>Working weekdays</h2><div class="days" id="days"></div></section>
+    <section><h2>Days off — pick days on the calendar</h2>
+      <div class="modes">
+        <label><input type="radio" name="mode" value="full"><span>Full day (8h)</span></label>
+        <label><input type="radio" name="mode" value="half"><span>Half day (4h)</span></label>
+        <label><input type="radio" name="mode" value="clear"><span>Clear</span></label>
+      </div>
+      <div id="calbox" hidden>
+        <div class="cal-h"><span id="title"></span></div>
+        <div class="grid" id="cal"></div></div></section>
     <section>
       <label class="sw"><span>Treat past days with no entry as leave</span><input type="checkbox" id="excludeMissingPastDays"></label>
       <label class="sw"><span>Count today as a remaining day</span><input type="checkbox" id="countTodayAsWorking"></label>

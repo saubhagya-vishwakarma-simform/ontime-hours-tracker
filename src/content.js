@@ -76,6 +76,7 @@
     const today = dayStart(new Date());
     const todayKey = iso(today);
     const holidays = new Set(settings.holidays);
+    const halves = new Set(settings.halfDays);
     const perDay = settings.hoursPerDay * 60;
 
     let daysTillNow = 0, workingDays = 0, pastWorkingDays = 0, remainingDays = 0, leaveDays = 0, holidayCount = 0;
@@ -92,11 +93,12 @@
       if (isPast && !hasEntry && settings.excludeMissingPastDays) {
         leaveDays++; leaves.push(k); continue;
       }
-      workingDays++;
-      if (d <= today) daysTillNow++;
-      if (isPast) pastWorkingDays++;
-      else if (isToday) { if (settings.countTodayAsWorking) remainingDays++; else pastWorkingDays++; }
-      else remainingDays++;
+      const w = halves.has(k) ? 0.5 : 1;
+      workingDays += w;
+      if (d <= today) daysTillNow += w;
+      if (isPast) pastWorkingDays += w;
+      else if (isToday) { if (settings.countTodayAsWorking) remainingDays += w; else pastWorkingDays += w; }
+      else remainingDays += w;
     }
 
     let worked = 0, workedBeforeToday = 0, workedTillToday = 0;
@@ -114,7 +116,7 @@
     const pending = Math.max(0, required - worked);
     const dueNow = daysTillNow * perDay;
     const pendingNow = Math.max(0, dueNow - workedTillToday);
-    const progress = required ? Math.min(100, (worked / required) * 100) : 0;
+    const progress = dueNow ? Math.min(100, (workedTillToday / dueNow) * 100) : 0; // vs hours due till today
     // Balance up to end of yesterday: + ahead / - behind
     const balance = workedBeforeToday - pastWorkingDays * perDay +
       (settings.countTodayAsWorking ? 0 : todayWorked);
