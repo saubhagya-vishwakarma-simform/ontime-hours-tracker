@@ -5,7 +5,7 @@ on:
 permissions:
   contents: write
 jobs:
-  build:
+  release:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -14,15 +14,5 @@ jobs:
       - name: Tag must match package.json
         run: test "v$(node -p "require('./package.json').version")" = "$GITHUB_REF_NAME"
       - run: npm run build
-      - uses: actions/upload-artifact@v4
-        with: { name: zip, path: dist/*.zip }
-
-  github-release:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/download-artifact@v4
-        with: { name: zip }
       - uses: softprops/action-gh-release@v2
-        with: { files: "*.zip", generate_release_notes: true }
-
+        with: { files: "dist/*.zip", generate_release_notes: true }

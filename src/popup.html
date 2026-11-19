@@ -3,17 +3,22 @@
 <head>
 <meta charset="utf-8">
 <style>
-  body { width: 300px; font: 13px -apple-system, "Segoe UI", Roboto, Arial, sans-serif; color: #1f2937; margin: 12px; }
-  h1 { font-size: 15px; margin: 0 0 10px; }
-  label { display: block; margin: 10px 0 4px; font-weight: 600; }
-  input[type=number] { width: 70px; padding: 4px; }
-  .days { display: flex; gap: 6px; flex-wrap: wrap; }
-  .days label { display: inline-flex; gap: 3px; font-weight: 400; margin: 0; }
-  textarea { width: 100%; box-sizing: border-box; height: 90px; font-family: monospace; font-size: 12px; }
-  .chk { font-weight: 400; display: flex; gap: 6px; align-items: flex-start; }
-  .hint { color: #6b7280; font-size: 11px; }
-  button { margin-top: 12px; width: 100%; padding: 7px; background: #0d6efd; color: #fff; border: 0; border-radius: 6px; cursor: pointer; }
-  #saved { color: #198754; text-align: center; height: 16px; margin-top: 6px; }
+  :root { --text:#1f2937; --muted:#6b7280; --line:#d9dfe9; --bg:#fff; --accent:#2563eb; }
+  @media (prefers-color-scheme: dark) { :root { --text:#e5e9f2; --muted:#9aa4b8; --line:#34405a; --bg:#1b2130; --accent:#60a5fa; } }
+  body { width:320px; margin:0; padding:16px; background:var(--bg); color:var(--text); font:13px -apple-system,"Segoe UI",Roboto,Arial,sans-serif; }
+  h1 { font-size:16px; margin:0 0 4px; }
+  label { display:block; margin:14px 0 5px; font-weight:600; }
+  input, textarea { background:transparent; color:var(--text); border:1px solid var(--line); border-radius:8px; padding:6px 8px; font:inherit; }
+  input:focus, textarea:focus { outline:2px solid var(--accent); outline-offset:0; }
+  input[type=number] { width:80px; }
+  .days { display:flex; gap:6px; flex-wrap:wrap; }
+  .days label { display:inline-flex; gap:4px; align-items:center; font-weight:500; margin:0; padding:4px 8px; border:1px solid var(--line); border-radius:99px; cursor:pointer; }
+  textarea { width:100%; box-sizing:border-box; height:84px; font-family:monospace; font-size:12px; resize:vertical; }
+  .chk { font-weight:400; display:flex; gap:8px; align-items:flex-start; margin:10px 0 0; }
+  .hint { color:var(--muted); font-size:11px; margin-top:4px; }
+  button { margin-top:16px; width:100%; padding:9px; background:var(--accent); color:#fff; border:0; border-radius:8px; font:600 13px inherit; cursor:pointer; }
+  button:hover { filter:brightness(1.1); }
+  #saved { color:#22c55e; text-align:center; min-height:16px; margin-top:8px; }
 </style>
 </head>
 <body>
@@ -36,6 +41,7 @@
 
   <button id="save">Save</button>
   <div id="saved"></div>
+  <script src="defaults.js"></script>
   <script src="popup.js"></script>
 </body>
 </html>

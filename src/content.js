@@ -3,13 +3,6 @@
 (() => {
   "use strict";
 
-  const DEFAULTS = {
-    hoursPerDay: 8,
-    workDays: [1, 2, 3, 4, 5],      // 0=Sun ... 6=Sat
-    holidays: [],                   // ["2026-11-09", ...]
-    excludeMissingPastDays: true,   // past working days with no entry = leave/holiday
-    countTodayAsWorking: true
-  };
   let settings = { ...DEFAULTS };
   const PANEL_ID = "oht-panel";
 
@@ -148,29 +141,29 @@
       ? r.leaves.map((k) => { const [y, m, d] = k.split("-"); return `${d}/${m}`; }).join(", ")
       : "none";
 
+    const card = (cls, icon, label, val, sub) =>
+      `<div class="oht-card ${cls}"><div class="oht-label"><span>${icon}</span>${label}</div>
+        <div class="oht-val">${val}</div><div class="oht-sub">${sub}</div></div>`;
     const html = `
       <div class="oht-head">
-        <span class="oht-title">⏱ Hours Tracker</span>
-        <span class="oht-range">${dt(range.start)} → ${dt(range.end)} · ${settings.hoursPerDay}h/day</span>
-      </div>
-      <div class="oht-grid">
-        <div class="oht-card"><div class="oht-label">Working days</div><div class="oht-val">${r.workingDays}</div>
-          <div class="oht-sub">${r.remainingDays} remaining</div></div>
-        <div class="oht-card"><div class="oht-label">Total hours to complete</div><div class="oht-val">${fmt(r.required)}</div>
-          <div class="oht-sub">${r.workingDays} × ${settings.hoursPerDay}h</div></div>
-        <div class="oht-card oht-good"><div class="oht-label">Hours completed</div><div class="oht-val">${fmt(r.worked)}</div>
-          <div class="oht-sub">${r.progress.toFixed(1)}% done</div></div>
-        <div class="oht-card ${r.pending ? "oht-warn" : "oht-good"}"><div class="oht-label">Hours pending</div><div class="oht-val">${fmt(r.pending)}</div>
-          <div class="oht-sub">${r.remainingDays ? `≈ ${fmt(r.perRemainingDay)} / remaining day` : "no working days left"}</div></div>
-        <div class="oht-card ${r.balance >= 0 ? "oht-good" : "oht-bad"}"><div class="oht-label">Balance till yesterday</div>
-          <div class="oht-val">${r.balance >= 0 ? "+" : ""}${fmt(r.balance)}</div>
-          <div class="oht-sub">${r.balance >= 0 ? "ahead" : "behind"}</div></div>
-        ${r.todayIsWorking ? `<div class="oht-card"><div class="oht-label">Today</div><div class="oht-val">${fmt(r.todayWorked)}</div>
-          <div class="oht-sub">${r.todayLeft ? `${fmt(r.todayLeft)} left to stay on track` : "on track ✓"}</div></div>` : ""}
+        <div><div class="oht-title">⏱ Hours Tracker</div>
+          <div class="oht-range">${dt(range.start)} → ${dt(range.end)} · ${settings.hoursPerDay}h/day</div></div>
+        <div class="oht-pct">${r.progress.toFixed(0)}%</div>
       </div>
       <div class="oht-bar"><div style="width:${r.progress}%"></div></div>
-      <div class="oht-foot">Excluded: ${r.holidayCount} holiday(s), ${r.leaveDays} leave/missing day(s) (${leavesTxt}).
-        Change hours/day, holidays &amp; weekdays from the extension icon.</div>`;
+      <div class="oht-grid">
+        ${card("", "📅", "Working days", r.workingDays, `${r.remainingDays} remaining`)}
+        ${card("", "🎯", "Hours to complete", fmt(r.required), `${r.workingDays} × ${settings.hoursPerDay}h`)}
+        ${card("oht-good", "✅", "Completed", fmt(r.worked), `${r.progress.toFixed(1)}% done`)}
+        ${card(r.pending ? "oht-warn" : "oht-good", "⏳", "Pending", fmt(r.pending),
+          r.remainingDays ? `≈ ${fmt(r.perRemainingDay)} / remaining day` : "no working days left")}
+        ${card(r.balance >= 0 ? "oht-good" : "oht-bad", "⚖️", "Balance till yesterday",
+          `${r.balance >= 0 ? "+" : ""}${fmt(r.balance)}`, r.balance >= 0 ? "ahead" : "behind")}
+        ${r.todayIsWorking ? card("", "☀️", "Today", fmt(r.todayWorked),
+          r.todayLeft ? `${fmt(r.todayLeft)} left to stay on track` : "on track ✓") : ""}
+      </div>
+      <div class="oht-foot">Excluded: ${r.holidayCount} holiday(s), ${r.leaveDays} leave/missing day(s) (${leavesTxt}) ·
+        edit settings from the extension icon</div>`;
 
     let panel = existing;
     if (!panel) {
@@ -179,7 +172,7 @@
       const card = table.closest(".card") || table.parentElement;
       card.parentElement.insertBefore(panel, card);
     }
-    if (panel.dataset.html !== html) { panel.innerHTML = html; panel.dataset.html = html; }
+    panel.innerHTML = html;
   }
 
   // ---------- wiring ----------
@@ -193,12 +186,11 @@
       if (muts.every((m) => m.target.closest && m.target.closest("#" + PANEL_ID))) return;
       schedule();
     }).observe(document.body, { childList: true, subtree: true, characterData: true });
-    document.addEventListener("input", schedule, true);
-    document.addEventListener("change", schedule, true);
     setInterval(render, 60 * 1000); // refresh "today" numbers every minute
   });
 
-  chrome.storage.onChanged.addListener(() =>
-    chrome.storage.sync.get(DEFAULTS, (s) => { settings = { ...DEFAULTS, ...s }; render(); })
-  );
+  chrome.storage.onChanged.addListener((ch) => {
+    for (const k in ch) settings[k] = ch[k].newValue;
+    render();
+  });
 })();

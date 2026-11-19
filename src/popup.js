@@ -1,10 +1,3 @@
-const DEFAULTS = {
-  hoursPerDay: 8,
-  workDays: [1, 2, 3, 4, 5],
-  holidays: [],
-  excludeMissingPastDays: true,
-  countTodayAsWorking: true
-};
 const NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const $ = (id) => document.getElementById(id);
 

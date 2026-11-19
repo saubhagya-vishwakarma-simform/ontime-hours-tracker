@@ -41,7 +41,7 @@ Download the newer zip, extract it over the same folder (or to a new one), then 
 ### Troubleshooting
 | Problem | Fix |
 |---|---|
-| "Manifest file is missing or unreadable" | You selected the wrong folder. Pick the one containing `manifest.json` directly. |
+| "Manifest file is missing or unreadable" | You selected the wrong folder (e.g. a parent, or the repo root). Open the folder you picked: `manifest.json` must be listed directly inside. If you cloned the repo, pick its `src/` folder; if you used the zip, pick the extracted folder. |
 | "Disable developer mode extensions" popup on startup | Edge shows this for unpacked extensions; dismiss it / keep the extension enabled. |
 | Panel doesn't show | Make sure you're on `https://ontime.simformsolutions.com/` and refresh the page. |
 
