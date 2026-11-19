@@ -1,24 +1,31 @@
 #oht-panel {
-  --bg:#fff; --card:#f6f8fc; --text:#1f2937; --muted:#6b7280; --line:#e3e8f0; --accent:#2563eb;
-  margin: 0 0 16px; padding: 16px 18px; border: 1px solid var(--line); border-radius: 14px;
-  background: var(--bg); color: var(--text); box-shadow: 0 2px 10px rgba(15,23,42,.06);
-  font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --bg:#fff; --card:#f4f7ff; --text:#0f172a; --muted:#64748b; --line:#e2e8f0; --accent:#4f46e5;
+  margin:0 0 18px; padding:0 0 14px; border:1px solid var(--line); border-radius:16px; overflow:hidden;
+  background:var(--bg); color:var(--text); box-shadow:0 8px 24px rgba(79,70,229,.10);
+  font-family:Inter,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
 }
 @media (prefers-color-scheme: dark) {
-  #oht-panel { --bg:#1b2130; --card:#252d3f; --text:#e5e9f2; --muted:#9aa4b8; --line:#2f3850; --accent:#60a5fa; }
+  #oht-panel { --bg:#161b2b; --card:#1f2740; --text:#e8ecf7; --muted:#97a3bd; --line:#2b3550; }
 }
-#oht-panel .oht-head { display:flex; justify-content:space-between; align-items:center; gap:8px; }
-#oht-panel .oht-title { font-weight:700; font-size:17px; }
-#oht-panel .oht-range { font-size:12px; color:var(--muted); margin-top:2px; }
-#oht-panel .oht-pct { font-size:26px; font-weight:800; color:var(--accent); font-variant-numeric:tabular-nums; }
-#oht-panel .oht-bar { height:8px; background:var(--line); border-radius:99px; margin:12px 0 14px; overflow:hidden; }
-#oht-panel .oht-bar > div { height:100%; background:linear-gradient(90deg,var(--accent),#22c55e); border-radius:99px; transition:width .4s; }
-#oht-panel .oht-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:10px; }
-#oht-panel .oht-card { --c:var(--accent); padding:12px 14px; border-radius:10px; background:var(--card); border-top:3px solid var(--c); }
-#oht-panel .oht-card.oht-good { --c:#22c55e; }
+#oht-panel .oht-head { display:flex; justify-content:space-between; align-items:center; gap:12px; padding:16px 20px;
+  background:linear-gradient(120deg,#4f46e5,#06b6d4); color:#fff; }
+#oht-panel .oht-title { font-weight:800; font-size:18px; letter-spacing:.2px; }
+#oht-panel .oht-range { font-size:12px; opacity:.85; margin-top:3px; }
+#oht-panel .oht-ring { --p:0; width:54px; height:54px; border-radius:50%; display:grid; place-items:center;
+  background:conic-gradient(#fff calc(var(--p)*1%), rgba(255,255,255,.28) 0); }
+#oht-panel .oht-ring span { width:42px; height:42px; border-radius:50%; display:grid; place-items:center;
+  background:#3f55d9; font-size:13px; font-weight:800; }
+#oht-panel .oht-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:12px; padding:16px 20px 0; }
+#oht-panel .oht-card { --c:#4f46e5; display:flex; gap:12px; align-items:center; padding:14px; border-radius:12px;
+  background:var(--card); border:1px solid var(--line); transition:transform .15s, box-shadow .15s; }
+#oht-panel .oht-card:hover { transform:translateY(-2px); box-shadow:0 6px 14px rgba(15,23,42,.10); }
+#oht-panel .oht-card.oht-good { --c:#16a34a; }
 #oht-panel .oht-card.oht-warn { --c:#f59e0b; }
-#oht-panel .oht-card.oht-bad  { --c:#ef4444; }
-#oht-panel .oht-label { font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); display:flex; gap:6px; align-items:center; }
-#oht-panel .oht-val { font-size:22px; font-weight:700; margin-top:4px; color:var(--c); font-variant-numeric:tabular-nums; }
-#oht-panel .oht-sub { font-size:12px; color:var(--muted); margin-top:2px; }
-#oht-panel .oht-foot { font-size:11px; color:var(--muted); margin-top:12px; }
+#oht-panel .oht-card.oht-today { --c:#0891b2; }
+#oht-panel .oht-card.oht-total { --c:#7c3aed; }
+#oht-panel .oht-ico { width:42px; height:42px; flex:none; display:grid; place-items:center; font-size:20px; border-radius:10px;
+  background:color-mix(in srgb,var(--c) 16%,transparent); }
+#oht-panel .oht-label { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); }
+#oht-panel .oht-val { font-size:24px; font-weight:800; margin-top:2px; color:var(--c); font-variant-numeric:tabular-nums; }
+#oht-panel .oht-sub { font-size:12px; color:var(--muted); margin-top:1px; }
+#oht-panel .oht-foot { font-size:11px; color:var(--muted); padding:12px 20px 0; }

@@ -11,7 +11,7 @@ function toIso(line) {
 chrome.storage.sync.get(DEFAULTS, (s) => {
   $("hoursPerDay").value = s.hoursPerDay;
   $("days").innerHTML = NAMES.map((n, i) =>
-    `<label><input type="checkbox" value="${i}" ${s.workDays.includes(i) ? "checked" : ""}>${n}</label>`).join("");
+    `<label><input type="checkbox" value="${i}" ${s.workDays.includes(i) ? "checked" : ""}><span>${n}</span></label>`).join("");
   $("holidays").value = s.holidays.map(toDisplay).join("\n");
   $("excludeMissingPastDays").checked = s.excludeMissingPastDays;
   $("countTodayAsWorking").checked = s.countTodayAsWorking;

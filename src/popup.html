@@ -3,44 +3,49 @@
 <head>
 <meta charset="utf-8">
 <style>
-  :root { --text:#1f2937; --muted:#6b7280; --line:#d9dfe9; --bg:#fff; --accent:#2563eb; }
-  @media (prefers-color-scheme: dark) { :root { --text:#e5e9f2; --muted:#9aa4b8; --line:#34405a; --bg:#1b2130; --accent:#60a5fa; } }
-  body { width:320px; margin:0; padding:16px; background:var(--bg); color:var(--text); font:13px -apple-system,"Segoe UI",Roboto,Arial,sans-serif; }
-  h1 { font-size:16px; margin:0 0 4px; }
-  label { display:block; margin:14px 0 5px; font-weight:600; }
-  input, textarea { background:transparent; color:var(--text); border:1px solid var(--line); border-radius:8px; padding:6px 8px; font:inherit; }
-  input:focus, textarea:focus { outline:2px solid var(--accent); outline-offset:0; }
-  input[type=number] { width:80px; }
+  :root { --text:#0f172a; --muted:#64748b; --line:#e2e8f0; --bg:#f1f5f9; --card:#fff; --accent:#4f46e5; }
+  @media (prefers-color-scheme: dark) { :root { --text:#e8ecf7; --muted:#97a3bd; --line:#2b3550; --bg:#0f1424; --card:#1a2138; --accent:#818cf8; } }
+  * { box-sizing:border-box; }
+  body { width:340px; margin:0; background:var(--bg); color:var(--text); font:13px Inter,-apple-system,"Segoe UI",Roboto,Arial,sans-serif; }
+  header { padding:16px; color:#fff; background:linear-gradient(120deg,#4f46e5,#06b6d4); }
+  h1 { font-size:16px; margin:0; } header p { margin:3px 0 0; font-size:12px; opacity:.85; }
+  main { padding:12px; display:grid; gap:10px; }
+  section { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px; }
+  h2 { font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); margin:0 0 8px; }
+  input[type=number], textarea { width:100%; background:transparent; color:var(--text); border:1px solid var(--line); border-radius:8px; padding:8px 10px; font:inherit; }
+  input[type=number]:focus, textarea:focus { outline:2px solid var(--accent); border-color:transparent; }
+  textarea { height:76px; font-family:monospace; font-size:12px; resize:vertical; }
   .days { display:flex; gap:6px; flex-wrap:wrap; }
-  .days label { display:inline-flex; gap:4px; align-items:center; font-weight:500; margin:0; padding:4px 8px; border:1px solid var(--line); border-radius:99px; cursor:pointer; }
-  textarea { width:100%; box-sizing:border-box; height:84px; font-family:monospace; font-size:12px; resize:vertical; }
-  .chk { font-weight:400; display:flex; gap:8px; align-items:flex-start; margin:10px 0 0; }
-  .hint { color:var(--muted); font-size:11px; margin-top:4px; }
-  button { margin-top:16px; width:100%; padding:9px; background:var(--accent); color:#fff; border:0; border-radius:8px; font:600 13px inherit; cursor:pointer; }
-  button:hover { filter:brightness(1.1); }
-  #saved { color:#22c55e; text-align:center; min-height:16px; margin-top:8px; }
+  .days label { position:relative; cursor:pointer; }
+  .days input { position:absolute; opacity:0; }
+  .days span { display:block; padding:6px 10px; border:1px solid var(--line); border-radius:99px; font-weight:600; color:var(--muted); }
+  .days input:checked + span { background:var(--accent); border-color:var(--accent); color:#fff; }
+  .days input:focus-visible + span { outline:2px solid var(--accent); outline-offset:2px; }
+  .sw { display:flex; justify-content:space-between; align-items:center; gap:12px; padding:6px 0; cursor:pointer; }
+  .sw input { appearance:none; flex:none; width:36px; height:20px; border-radius:99px; background:var(--line); position:relative; transition:.2s; cursor:pointer; }
+  .sw input::after { content:""; position:absolute; top:2px; left:2px; width:16px; height:16px; border-radius:50%; background:#fff; transition:.2s; }
+  .sw input:checked { background:var(--accent); } .sw input:checked::after { left:18px; }
+  .hint { color:var(--muted); font-size:11px; margin-top:6px; }
+  button { width:100%; padding:10px; background:linear-gradient(120deg,#4f46e5,#06b6d4); color:#fff; border:0; border-radius:10px; font:700 13px inherit; cursor:pointer; }
+  button:hover { filter:brightness(1.08); }
+  #saved { text-align:center; min-height:16px; color:#16a34a; }
 </style>
 </head>
 <body>
-  <h1>⏱ OnTime Hours Tracker</h1>
-
-  <label>Hours per working day</label>
-  <input type="number" id="hoursPerDay" min="1" max="24" step="0.25">
-
-  <label>Working weekdays</label>
-  <div class="days" id="days"></div>
-
-  <label>Holidays (one per line, DD/MM/YYYY)</label>
-  <textarea id="holidays" placeholder="09/11/2026&#10;25/12/2026"></textarea>
-  <div class="hint">These days are removed from the working-day count.</div>
-
-  <label class="chk"><input type="checkbox" id="excludeMissingPastDays">
-    <span>Treat past working days with no entry as leave (don't count them)</span></label>
-  <label class="chk"><input type="checkbox" id="countTodayAsWorking">
-    <span>Count today as a remaining day (not yet in the "balance")</span></label>
-
-  <button id="save">Save</button>
-  <div id="saved"></div>
+  <header><h1>⏱ OnTime Hours Tracker</h1><p>Settings for your timesheet summary</p></header>
+  <main>
+    <section><h2>Hours per working day</h2>
+      <input type="number" id="hoursPerDay" min="1" max="24" step="0.25"></section>
+    <section><h2>Working weekdays</h2><div class="days" id="days"></div></section>
+    <section><h2>Holidays</h2>
+      <textarea id="holidays" placeholder="09/11/2026&#10;25/12/2026"></textarea>
+      <div class="hint">One per line, DD/MM/YYYY. Removed from the working-day count.</div></section>
+    <section>
+      <label class="sw"><span>Treat past days with no entry as leave</span><input type="checkbox" id="excludeMissingPastDays"></label>
+      <label class="sw"><span>Count today as a remaining day</span><input type="checkbox" id="countTodayAsWorking"></label>
+    </section>
+    <button id="save">Save</button><div id="saved"></div>
+  </main>
   <script src="defaults.js"></script>
   <script src="popup.js"></script>
 </body>

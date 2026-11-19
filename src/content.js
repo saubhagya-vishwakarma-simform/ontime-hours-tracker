@@ -78,7 +78,7 @@
     const holidays = new Set(settings.holidays);
     const perDay = settings.hoursPerDay * 60;
 
-    let workingDays = 0, pastWorkingDays = 0, remainingDays = 0, leaveDays = 0, holidayCount = 0;
+    let daysTillNow = 0, workingDays = 0, pastWorkingDays = 0, remainingDays = 0, leaveDays = 0, holidayCount = 0;
     const leaves = [];
 
     for (let d = dayStart(range.start); d <= range.end; d.setDate(d.getDate() + 1)) {
@@ -93,23 +93,27 @@
         leaveDays++; leaves.push(k); continue;
       }
       workingDays++;
+      if (d <= today) daysTillNow++;
       if (isPast) pastWorkingDays++;
       else if (isToday) { if (settings.countTodayAsWorking) remainingDays++; else pastWorkingDays++; }
       else remainingDays++;
     }
 
-    let worked = 0, workedBeforeToday = 0;
+    let worked = 0, workedBeforeToday = 0, workedTillToday = 0;
     for (const [k, m] of entries) {
       const [y, mo, da] = k.split("-").map(Number);
       const d = new Date(y, mo - 1, da);
       if (d < range.start || d > range.end) continue;
       worked += m;
       if (k < todayKey) workedBeforeToday += m;
+      if (k <= todayKey) workedTillToday += m;
     }
     const todayWorked = entries.get(todayKey) || 0;
 
     const required = workingDays * perDay;
     const pending = Math.max(0, required - worked);
+    const dueNow = daysTillNow * perDay;
+    const pendingNow = Math.max(0, dueNow - workedTillToday);
     const progress = required ? Math.min(100, (worked / required) * 100) : 0;
     // Balance up to end of yesterday: + ahead / - behind
     const balance = workedBeforeToday - pastWorkingDays * perDay +
@@ -119,7 +123,7 @@
     const todayLeft = Math.max(0, todayTarget - todayWorked);
 
     return {
-      workingDays, leaveDays, leaves, holidayCount, remainingDays, required, worked,
+      daysTillNow, dueNow, pendingNow, workingDays, leaveDays, leaves, holidayCount, remainingDays, required, worked,
       pending, progress, balance, perRemainingDay, todayWorked, todayLeft,
       todayIsWorking: settings.workDays.includes(today.getDay()) && !holidays.has(todayKey) &&
         today >= dayStart(range.start) && today <= range.end
@@ -142,25 +146,22 @@
       : "none";
 
     const card = (cls, icon, label, val, sub) =>
-      `<div class="oht-card ${cls}"><div class="oht-label"><span>${icon}</span>${label}</div>
-        <div class="oht-val">${val}</div><div class="oht-sub">${sub}</div></div>`;
+      `<div class="oht-card ${cls}"><div class="oht-ico">${icon}</div><div>
+        <div class="oht-label">${label}</div><div class="oht-val">${val}</div><div class="oht-sub">${sub}</div></div></div>`;
     const html = `
       <div class="oht-head">
         <div><div class="oht-title">⏱ Hours Tracker</div>
           <div class="oht-range">${dt(range.start)} → ${dt(range.end)} · ${settings.hoursPerDay}h/day</div></div>
-        <div class="oht-pct">${r.progress.toFixed(0)}%</div>
+        <div class="oht-ring" style="--p:${r.progress}"><span>${r.progress.toFixed(0)}%</span></div>
       </div>
-      <div class="oht-bar"><div style="width:${r.progress}%"></div></div>
       <div class="oht-grid">
-        ${card("", "📅", "Working days", r.workingDays, `${r.remainingDays} remaining`)}
-        ${card("", "🎯", "Hours to complete", fmt(r.required), `${r.workingDays} × ${settings.hoursPerDay}h`)}
-        ${card("oht-good", "✅", "Completed", fmt(r.worked), `${r.progress.toFixed(1)}% done`)}
-        ${card(r.pending ? "oht-warn" : "oht-good", "⏳", "Pending", fmt(r.pending),
-          r.remainingDays ? `≈ ${fmt(r.perRemainingDay)} / remaining day` : "no working days left")}
-        ${card(r.balance >= 0 ? "oht-good" : "oht-bad", "⚖️", "Balance till yesterday",
-          `${r.balance >= 0 ? "+" : ""}${fmt(r.balance)}`, r.balance >= 0 ? "ahead" : "behind")}
-        ${r.todayIsWorking ? card("", "☀️", "Today", fmt(r.todayWorked),
-          r.todayLeft ? `${fmt(r.todayLeft)} left to stay on track` : "on track ✓") : ""}
+        ${card("", "📆", "Total days", r.daysTillNow, "working days till now")}
+        ${card("", "🎯", "Hours to complete", fmt(r.dueNow), `${r.daysTillNow} days × ${settings.hoursPerDay}h`)}
+        ${card(r.pendingNow ? "oht-warn" : "oht-good", "⏳", "Pending hours", fmt(r.pendingNow), "till today · " + fmt(r.worked) + " done")}
+        ${card("oht-today", "☀️", "Today", fmt(r.todayWorked),
+          r.todayIsWorking ? (r.todayLeft ? `${fmt(r.todayLeft)} left to stay on track` : "on track ✓") : "not a working day")}
+        ${card("oht-total", "🗓️", "Total working days", r.workingDays, `${r.remainingDays} remaining`)}
+        ${card("oht-total", "🏁", "Total hours to complete", fmt(r.required), `${r.workingDays} days × ${settings.hoursPerDay}h`)}
       </div>
       <div class="oht-foot">Excluded: ${r.holidayCount} holiday(s), ${r.leaveDays} leave/missing day(s) (${leavesTxt}) ·
         edit settings from the extension icon</div>`;
