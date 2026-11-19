@@ -26,23 +26,3 @@ jobs:
       - uses: softprops/action-gh-release@v2
         with: { files: "*.zip", generate_release_notes: true }
 
-  edge-add-ons:
-    needs: build
-    runs-on: ubuntu-latest
-    env:
-      EDGE_PRODUCT_ID: ${{ secrets.EDGE_PRODUCT_ID }}
-    steps:
-      - if: env.EDGE_PRODUCT_ID == ''
-        run: echo "EDGE_PRODUCT_ID not set, skipping"
-      - if: env.EDGE_PRODUCT_ID != ''
-        uses: actions/download-artifact@v4
-        with: { name: zip }
-      - if: env.EDGE_PRODUCT_ID != ''
-        run: echo "ZIP=$(ls *.zip)" >> "$GITHUB_ENV"
-      - if: env.EDGE_PRODUCT_ID != ''
-        uses: wdzeng/edge-addon@v2
-        with:
-          product-id: ${{ secrets.EDGE_PRODUCT_ID }}
-          zip-path: ${{ env.ZIP }}
-          client-id: ${{ secrets.EDGE_CLIENT_ID }}
-          api-key: ${{ secrets.EDGE_API_KEY }}

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="260" font-family="Segoe UI,Arial,sans-serif">
+<rect width="720" height="260" rx="12" fill="#f5f7fa" stroke="#cfd6e0"/>
+<rect width="720" height="48" rx="12" fill="#0f6cbd"/><text x="30" y="31" font-size="19" fill="#fff" font-weight="bold">Step 1: Download the zip</text>
+<text x="30" y="110" font-size="15" fill="#444">• Open the GitHub Releases page</text><text x="30" y="136" font-size="15" fill="#444">• Under Assets, click ontime-hours-tracker-X.Y.Z.zip</text>
+<rect x="30" y="180" width="660" height="52" rx="8" fill="#fff" stroke="#0f6cbd" stroke-width="2"/>
+<text x="50" y="212" font-size="17" fill="#0f6cbd" font-family="monospace">ontime-hours-tracker-1.0.1.zip  ↓</text>
+</svg>

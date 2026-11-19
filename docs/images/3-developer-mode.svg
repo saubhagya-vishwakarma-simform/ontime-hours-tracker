@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="260" font-family="Segoe UI,Arial,sans-serif">
+<rect width="720" height="260" rx="12" fill="#f5f7fa" stroke="#cfd6e0"/>
+<rect width="720" height="48" rx="12" fill="#0f6cbd"/><text x="30" y="31" font-size="19" fill="#fff" font-weight="bold">Step 3: Enable Developer mode</text>
+<text x="30" y="110" font-size="15" fill="#444">• Open edge://extensions in the address bar</text><text x="30" y="136" font-size="15" fill="#444">• Turn ON 'Developer mode' (left sidebar)</text>
+<rect x="30" y="180" width="660" height="52" rx="8" fill="#fff" stroke="#0f6cbd" stroke-width="2"/>
+<text x="50" y="212" font-size="17" fill="#0f6cbd" font-family="monospace">Developer mode   [ ● ON ]</text>
+</svg>
