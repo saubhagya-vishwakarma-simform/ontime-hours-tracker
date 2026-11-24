@@ -101,6 +101,9 @@
       else remainingDays += w;
     }
 
+    // per-day target: full day = perDay, half day = perDay/2, off day = 0 (overtime never offsets other days)
+    const dayTarget = (k, d) => !settings.workDays.includes(d.getDay()) || holidays.has(k) ? 0 : halves.has(k) ? perDay / 2 : perDay;
+    let overtime = 0;
     let worked = 0, workedBeforeToday = 0, workedTillToday = 0;
     for (const [k, m] of entries) {
       const [y, mo, da] = k.split("-").map(Number);
@@ -108,7 +111,7 @@
       if (d < range.start || d > range.end) continue;
       worked += m;
       if (k < todayKey) workedBeforeToday += m;
-      if (k <= todayKey) workedTillToday += m;
+      if (k <= todayKey) { workedTillToday += m; overtime += Math.max(0, m - dayTarget(k, d)); }
     }
     const todayWorked = entries.get(todayKey) || 0;
 
@@ -121,12 +124,14 @@
     const balance = workedBeforeToday - pastWorkingDays * perDay +
       (settings.countTodayAsWorking ? 0 : todayWorked);
     const perRemainingDay = remainingDays ? pending / remainingDays : 0;
-    const todayTarget = Math.max(0, perDay - balance) ; // what today needs to be back on track
-    const todayLeft = Math.max(0, todayTarget - todayWorked);
+    const onTrackLeft = Math.max(0, Math.max(0, perDay - balance) - todayWorked); // to stay on track overall
+    const todayBase = dayTarget(todayKey, today);
+    const todayLeft = Math.max(0, todayBase - todayWorked); // fixed per-day base, overtime doesn't reduce it
+    const todayPct = todayBase ? Math.min(100, (todayWorked / todayBase) * 100) : 0;
 
     return {
       daysTillNow, dueNow, pendingNow, workingDays, leaveDays, leaves, holidayCount, remainingDays, required, worked,
-      pending, progress, balance, perRemainingDay, todayWorked, todayLeft,
+      pending, progress, workedTillToday, balance, perRemainingDay, todayWorked, todayLeft, onTrackLeft, todayBase, todayPct, overtime,
       todayIsWorking: settings.workDays.includes(today.getDay()) && !holidays.has(todayKey) &&
         today >= dayStart(range.start) && today <= range.end
     };
@@ -154,15 +159,14 @@
       <div class="oht-head">
         <div><div class="oht-title">⏱ Hours Tracker</div>
           <div class="oht-range">${dt(range.start)} → ${dt(range.end)} · ${settings.hoursPerDay}h/day</div></div>
-        <div class="oht-ring" style="--p:${r.progress}"><span>${r.progress.toFixed(0)}%</span></div>
+        <div class="oht-ring" style="--p:${r.todayPct}"><span>${r.todayPct.toFixed(0)}%</span></div>
       </div>
       <div class="oht-grid">
-        ${card("", "📆", "Total days", r.daysTillNow, "working days till now")}
+        ${card("", "📆", "Total days", `${r.daysTillNow} of ${r.workingDays}`, `${r.remainingDays} remaining`)}
         ${card("", "🎯", "Hours to complete", fmt(r.dueNow), `${r.daysTillNow} days × ${settings.hoursPerDay}h`)}
-        ${card(r.pendingNow ? "oht-warn" : "oht-good", "⏳", "Pending hours", fmt(r.pendingNow), "till today · " + fmt(r.worked) + " done")}
+        ${card(r.todayLeft ? "oht-warn" : "oht-good", "⏳", "Pending hours", fmt(r.todayLeft), r.todayBase ? `today · ${fmt(r.todayWorked)} of ${fmt(r.todayBase)} done` : "not a working day")}
         ${card("oht-today", "☀️", "Today", fmt(r.todayWorked),
-          r.todayIsWorking ? (r.todayLeft ? `${fmt(r.todayLeft)} left to stay on track` : "on track ✓") : "not a working day")}
-        ${card("oht-total", "🗓️", "Total working days", r.workingDays, `${r.remainingDays} remaining`)}
+          r.todayIsWorking ? (r.onTrackLeft ? `${fmt(r.onTrackLeft)} left to stay on track` : "on track ✓") : "not a working day")}
         ${card("oht-total", "🏁", "Total hours to complete", fmt(r.required), `${r.workingDays} days × ${settings.hoursPerDay}h`)}
       </div>
       <div class="oht-foot">Excluded: ${r.holidayCount} holiday(s), ${r.leaveDays} leave/missing day(s) (${leavesTxt}) ·
